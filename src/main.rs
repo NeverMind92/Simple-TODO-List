@@ -1,4 +1,4 @@
-use iced::{Element, Length::{Fill, Fixed}, Padding, Renderer, alignment::{self, Horizontal, Vertical}, widget::{Text, bottom, button, column, container, row, space, text_input}};
+use iced::{Element, Length::{Fill, Fixed}, Theme, alignment::{ Horizontal, Vertical}, widget::{ Text, button, checkbox, column, container, row, text_input}};
 
 #[derive(Default)]
 struct Model {
@@ -11,6 +11,7 @@ enum Message {
     Input(String),
     CreateTask,
     DeleteTask(usize),
+    SetComplete(bool, usize),
 }
 
 #[derive(Default, Debug, Clone)]
@@ -20,6 +21,13 @@ struct Task {
 }
 
 impl Model {
+    fn new() -> Self {
+        Self {
+            task: Task { name: String::new(), is_complete: false },
+            task_list: vec![]
+        }
+    }
+
     fn update(&mut self, message: Message) {
         match message {
             Message::Input(content) => {
@@ -37,6 +45,11 @@ impl Model {
             Message::DeleteTask(index) => {
                 self.task_list.remove(index);
             }
+            Message::SetComplete(is_complete, index ) => {
+                if let Some(task) = self.task_list.get_mut(index) {
+                    task.is_complete = is_complete;
+                }
+            }
         }
     }
 
@@ -46,13 +59,16 @@ impl Model {
                 row![
                     Text::new(&task.name)
                         .width(Fill),
+                    checkbox(task.is_complete)
+                        .on_toggle(move |is_complete| Message::SetComplete(is_complete, index)),
                     button("X")
                         .on_press(Message::DeleteTask(index))
-                        .width(Fixed(30.0))
+                        .width(Fixed(30.0)),
                 ]
                 .align_y(Vertical::Center)
                 .spacing(10)
             )
+            .style(container::bordered_box)
             .width(Fill)
             .padding(10)
             .into()
@@ -73,5 +89,8 @@ impl Model {
 }
 
 pub fn main() -> iced::Result {
-    iced::run(Model::update, Model::view)
+    //iced::run(Model::update, Model::view)
+    iced::application(Model::new, Model::update, Model::view)
+    .theme(Theme::KanagawaDragon)
+    .run()
 }
