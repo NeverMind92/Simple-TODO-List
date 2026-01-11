@@ -1,4 +1,4 @@
-use iced::{Element, Length::{Fill, Fixed}, Theme, alignment::{ Horizontal, Vertical}, widget::{ Text, button, checkbox, column, container, row, text_input}};
+use iced::{Element, Length::{Fill, Fixed}, Theme, alignment::{ Horizontal, Vertical}, widget::{ Text, button, checkbox, column, container, row, scrollable, text_input}};
 
 #[derive(Default)]
 struct Model {
@@ -79,11 +79,11 @@ impl Model {
                 .on_input(Message::Input),
             button("Create task")
                 .on_press(Message::CreateTask),
+            scrollable(column![].extend(tasks_ui)) //refactor maybe
         ]
         .padding(15)
         .spacing(5)
         .align_x(Horizontal::Center)
-        .extend(tasks_ui)
         .into()
     }
 }
