@@ -79,7 +79,7 @@ impl Model {
                 .on_input(Message::Input),
             button("Create task")
                 .on_press(Message::CreateTask),
-            scrollable(column![].extend(tasks_ui)) //refactor maybe
+            scrollable(column![].extend(tasks_ui).spacing(5)) //refactor maybe
         ]
         .padding(15)
         .spacing(5)
