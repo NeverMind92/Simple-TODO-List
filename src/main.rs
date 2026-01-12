@@ -1,9 +1,10 @@
-use iced::{Element, Length::{Fill, Fixed}, Theme, alignment::{ Horizontal, Vertical}, widget::{ Text, button, checkbox, column, container, row, scrollable, text_input}};
+use iced::{Element, Length::{self, Fill, Fixed}, Theme, alignment::{ Horizontal, Vertical}, widget::{ Text, button, checkbox, column, container, row, scrollable, text_input}};
 
-#[derive(Default)]
+
 struct Model {
     task: Task,
     task_list: Vec<Task>,
+    theme: Theme
 }
 
 #[derive(Debug, Clone)]
@@ -12,6 +13,7 @@ enum Message {
     CreateTask,
     DeleteTask(usize),
     SetComplete(bool, usize),
+    ChangeTheme
 }
 
 #[derive(Default, Debug, Clone)]
@@ -20,11 +22,22 @@ struct Task {
     is_complete: bool,
 }
 
+//MAIN
+pub fn main() -> iced::Result {
+    //iced::run(Model::update, Model::view)
+    iced::application(Model::new, Model::update, Model::view)
+    .theme(|model: &Model| model.theme.clone())
+    .window_size(iced::Size::new(410.0, 550.0))
+    .run()
+}
+
+
 impl Model {
     fn new() -> Self {
         Self {
             task: Task { name: String::new(), is_complete: false },
-            task_list: vec![]
+            task_list: vec![],
+            theme: Theme::Dark
         }
     }
 
@@ -50,6 +63,12 @@ impl Model {
                     task.is_complete = is_complete;
                 }
             }
+            Message::ChangeTheme => {
+                self.theme = match self.theme {
+                    Theme::Dark => Theme::Light,
+                    _ => Theme::Dark
+                }
+            }
         }
     }
 
@@ -59,8 +78,10 @@ impl Model {
                 row![
                     Text::new(&task.name)
                         .width(Fill),
+
                     checkbox(task.is_complete)
                         .on_toggle(move |is_complete| Message::SetComplete(is_complete, index)),
+                        
                     button("X")
                         .on_press(Message::DeleteTask(index))
                         .width(Fixed(30.0)),
@@ -77,21 +98,27 @@ impl Model {
         column![
             text_input("Enter task name", &self.task.name)
                 .on_input(Message::Input),
+
             button("Create task")
                 .on_press(Message::CreateTask),
-            scrollable(column![].extend(tasks_ui).spacing(5)) //refactor maybe
+
+            container(
+                scrollable(
+                    column![].extend(tasks_ui).spacing(5))
+                    .width(Fill)
+                )
+                .width(Fill)
+                .height(Length::Fill),
+
+            row![
+                button("*")
+                    .on_press(Message::ChangeTheme)
+                    .style(button::secondary)
+            ]          
         ]
         .padding(15)
         .spacing(5)
         .align_x(Horizontal::Center)
         .into()
     }
-}
-
-pub fn main() -> iced::Result {
-    //iced::run(Model::update, Model::view)
-    iced::application(Model::new, Model::update, Model::view)
-    .theme(Theme::KanagawaDragon)
-    .window_size(iced::Size::new(680.0, 460.0))
-    .run()
 }
