@@ -92,5 +92,6 @@ pub fn main() -> iced::Result {
     //iced::run(Model::update, Model::view)
     iced::application(Model::new, Model::update, Model::view)
     .theme(Theme::KanagawaDragon)
+    .window_size(iced::Size::new(680.0, 460.0))
     .run()
 }
